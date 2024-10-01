@@ -1,4 +1,3 @@
-#import font
 import os
 import random
 import sys
@@ -13,8 +12,26 @@ DELTA = {pg.K_UP: (0, -5),
          pg.K_RIGHT: (+5, 0),
          }
 
+
+
+DIRECTION = {
+    pg.K_UP: -90,
+    pg.K_DOWN: 90,
+    pg.K_LEFT: 180,
+    pg.K_RIGHT: 0,
+}  # 演習3の途中
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+def timer_bomb(bb_accs: pg.Rect) -> tuple[bool, bool]:
+    accs = [a for a in range(1, 11)]
+    vx, vy, tmr = +5, -5, 0
+    vx *= accs[min(tmr//500, 9)]
+    vy *= accs[min(tmr//500, 9)]
+    for r in range(1, 11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+    return vx, vy, r  # 演習2の途中
 
 def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     """
@@ -37,7 +54,7 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")    
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
-    cry_img = pg.image.load("fig/8.png")
+    cry_img = pg.image.load("fig/8.png")  # こうかとんの泣き画像
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
     bb_img = pg.Surface((20,20))  # 空の(Surface
@@ -88,11 +105,15 @@ def main():
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
         bb_rct.move_ip(vx, vy)
+        bb_accs = timer_bomb(bb_rct)
+        bb_accs.move_ip(vx, vy)
         yoko, tate = check_bound(bb_rct)
         if not yoko:
             vx *= -1
         if not tate:
             vy *= -1
+        #bb_imgs = timer_bomb(bb_rct)
+        #bb_img = bb_imgs[min(tmr//500, 9)]
         screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
